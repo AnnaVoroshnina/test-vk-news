@@ -1,50 +1,18 @@
-# React + TypeScript + Vite
+# Приложение для просмотра новостей
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Получаем с сервера список новостей и отображаем его на экране. Список поддерживает бесконечный скролл и постепенную плавную подгрузку новостей. Подгрузка данных сопровождается индикацией.
 
-Currently, two official plugins are available:
+Список новостей можно фильтровать по категориям, а также при помощи поля ввода можно искать новости по определенному слову или символу.
+Локально можно изменить заголовок новости или удалить ее.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. В проекте использованы следующие технологии - TS, React/Mobx, CSS-модули, Vite, Jest, React Testing Library.
+2. Публичное API - https://currentsapi.services/en/docs/search.
+3. Для отображения списка использовался фреймворк [Material UI](https://mui.com/material-ui/). Выбор обоснован рядом преимуществ:
+   - MUI предоставляет готовые компоненты для создания списков, такие как List, ListItem, ListItemText и другие. 
+   - MUI позволяет легко настраивать внешний вид списков, изменяя цвета, размеры, отступы и другие параметры. Это позволяет интегрировать списки в любой дизайн.
+   - Хорошая документация и поддержка.
+   - MUI оптимизирован для высокой производительности, что важно при работе с большими списками. 
+   - MUI уделяет большое внимание доступности, что делает списки удобными для использования людьми с ограниченными возможностями.
+   - MUI - одна из самых популярных библиотек React-компонентов.
+4. Функциональность покрыта unit-тестами на Jest и React Testing Library.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```

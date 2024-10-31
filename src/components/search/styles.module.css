@@ -1,0 +1,36 @@
+.search{
+    display: flex;
+    position: sticky;
+    top: 155px;
+    z-index: 100;
+    width: 100%;
+    background-color: white;
+    gap: 12px;
+    transition: all 1.2s ease-in-out;
+    margin-block: 10px;;
+}
+
+.input{
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background-color: #d5e9fd;
+    border-radius: 12px;
+    color: #1975d1;
+    outline: none;
+}
+.input::placeholder{
+    color: #1975d1;
+}
+
+.clearButton {
+    background: none;
+    border: none;
+    color: #1975d1;
+    cursor: pointer;
+    font-size: 1.5rem;
+    position: absolute;
+    top: 3px;
+    right: 10px;
+}
+

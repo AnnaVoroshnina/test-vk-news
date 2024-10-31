@@ -1,76 +1,16 @@
 import {observable, action, makeObservable} from 'mobx';
+import {CategoriesType, INews} from "../types/types.ts";
 
 const API_KEY = "Eam40-oJlUKMEeSYPWiyP8U7ZDDtSh15PH5JIyv3-8f9L8Z3"
 const BASE_URL = "https://api.currentsapi.services/v1"
 
-export type CategoriesType =
-    | "regional"
-    | "technology"
-    | "lifestyle"
-    | "business"
-    | "general"
-    | "programming"
-    | "science"
-    | "entertainment"
-    | "world"
-    | "sports"
-    | "finance"
-    | "academia"
-    | "politics"
-    | "health"
-    | "opinion"
-    | "food"
-    | "game"
-    | "fashion"
-    | "academic"
-    | "crap"
-    | "travel"
-    | "culture"
-    | "economy"
-    | "environment"
-    | "art"
-    | "music"
-    | "notsure"
-    | "CS"
-    | "education"
-    | "redundant"
-    | "television"
-    | "commodity"
-    | "movie"
-    | "entrepreneur"
-    | "review"
-    | "auto"
-    | "energy"
-    | "celebrity"
-    | "medical"
-    | "gadgets"
-    | "design"
-    | "EE"
-    | "security"
-    | "mobile"
-    | "estate"
-    | "funny";
-
-export interface INews {
-    author: string;
-    category: CategoriesType[];
-    description: string;
-    id: string;
-    image: string;
-    language: string;
-    published: string;
-    title: string
-    url: string
-}
-
 class Store {
     news: INews[] = [];
-    categories: CategoriesType[] =[]
+    categories: CategoriesType[] = []
     isLoading: boolean = false;
     currentPage: number = 1;
     deletedNewsIds: string[] = []
-    totalNewsCountForCategory: number | null = null;
-
+    error: string | null = null
 
     constructor() {
         makeObservable(this, {
@@ -78,42 +18,43 @@ class Store {
             categories: observable,
             isLoading: observable,
             currentPage: observable,
-            deletedNewsIds:observable,
-            totalNewsCountForCategory: observable,
+            deletedNewsIds: observable,
+            error: observable,
             fetchItems: action,
             editItem: action,
-            deleteItem: action
-        });
+            deleteItem: action,
+        })
     }
 
-
-    async fetchItems(page: number = 1) {
+    async fetchItems() {
         this.isLoading = true;
         try {
-            const response = await fetch(`${BASE_URL}/search?apiKey=${API_KEY}&page_number=${page}&page_size=20`); // Добавляем параметр page
+            const response = await fetch(`${BASE_URL}/search?apiKey=${API_KEY}&page_number=${this.currentPage}&page_size=50`); // Добавляем параметр page
             const data = await response.json();
             // Фильтруем новые новости, чтобы избежать дубликатов
-            const dataNews = data.news.filter((newItem:INews) =>
+            const dataNews = data.news.filter((newItem: INews) =>
                 !this.news.some(existingItem => existingItem.id === newItem.id)
             );
             this.news = [...this.news, ...dataNews].filter(item => !this.deletedNewsIds.includes(item.id)); // Фильтруем новости
             this.currentPage++; // Увеличиваем номер страницы
 
         } catch (error) {
-            console.error(error);
+            console.log(error);
+            this.error = "Ошибка при загрузке новостей";
         } finally {
             this.isLoading = false;
         }
     }
 
-    async fetchCategories () {
+    async fetchCategories() {
         try {
             const response = await fetch(`${BASE_URL}/available/categories?apiKey=${API_KEY}`); // Добавляем параметр page
             const data = await response.json();
             const dataNews = await data.categories;
             this.categories = [...this.categories, ...dataNews];
         } catch (error) {
-            console.error(error);
+            console.log(error);
+            this.error = "Ошибка при загрузке категорий";
         }
     }
 

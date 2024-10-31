@@ -12,7 +12,9 @@
     white-space: nowrap;
     scrollbar-width: none;
 }
-
+.item{
+    cursor: pointer;
+}
 .item, .active {
     display: flex;
     align-items: center;
@@ -20,10 +22,11 @@
     border: none;
     border-radius: 32px;
     background-color: #f2f4f5;
+    cursor: pointer;
 }
 .active {
-    background-color: #E7E7ff;
-    color: #6b4eff;
+    background-color: #d5e9fd;
+    color: #1975d1;
 }
 
 ::-webkit-scrollbar {

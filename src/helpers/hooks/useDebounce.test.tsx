@@ -1,5 +1,5 @@
 import {useDebounce} from './useDebounce';
-import React, {useState} from 'react';
+import  {useState} from 'react';
 import {render, fireEvent, act} from "@testing-library/react";
 
 describe('useDebounce', () => {

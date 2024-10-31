@@ -1,4 +1,3 @@
-import React from 'react';
 import {render, screen, waitFor, fireEvent, act} from '@testing-library/react';
 import ListNews from './list';
 import Store from '../../store/store';

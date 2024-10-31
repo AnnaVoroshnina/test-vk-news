@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import Store from "../../store/store.tsx";
 import {observer} from "mobx-react-lite";
 import {
@@ -28,19 +28,23 @@ const ListNews = () => {
         Store.fetchItems();
     }, []);
 
-    useEffect(() => {
-        if (selectedCategory !== "all") {
-            setFilteredNews(Store.news.filter(item =>
-                item.category.includes(selectedCategory) &&
-                (debouncedKeywords ? item.title.toLowerCase().includes(debouncedKeywords.toLowerCase()) : true) // Проверяем debouncedKeywords
-            ));
+    // useCallback для мемоизации функции фильтрации новостей
+    const filterNews = useCallback((category: CategoriesType | "all", keywords: string) => {
+        if (category !== "all") {
+            return Store.news.filter(item =>
+                item.category.includes(category) &&
+                (keywords ? item.title.toLowerCase().includes(keywords.toLowerCase()) : true)
+            );
         } else {
-            setFilteredNews(Store.news.filter(item =>
-                debouncedKeywords ? item.title.toLowerCase().includes(debouncedKeywords.toLowerCase()) : true // Проверяем debouncedKeywords
-            ));
+            return Store.news.filter(item =>
+                keywords ? item.title.toLowerCase().includes(keywords.toLowerCase()) : true
+            );
         }
-    }, [selectedCategory, Store.news, debouncedKeywords]);
+    }, [Store.news]);
 
+    useEffect(() => {
+        setFilteredNews(filterNews(selectedCategory, debouncedKeywords));
+    }, [selectedCategory, debouncedKeywords, filterNews]);
 
     return (
         <>

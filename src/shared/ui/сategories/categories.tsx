@@ -1,6 +1,6 @@
 import Store from "../../store/store.tsx";
 import styles from "./styles.module.css"
-import {CategoriesType} from "../../types/types.ts";
+import {CategoriesType} from "../../../app/types/types.ts";
 import {v4} from "uuid";
 
 type Props = {

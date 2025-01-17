@@ -1,7 +1,7 @@
 import {render, screen, waitFor, fireEvent, act} from '@testing-library/react';
-import ListNews from './list';
-import Store from '../../store/store';
-import {INews, CategoriesType} from '../../types/types';
+import ListNews from './list.tsx';
+import Store from '../../shared/store/store.tsx';
+import {INews, CategoriesType} from '../../app/types/types.ts';
 
 // Моковые данные для новостей
 const mockNews: INews[] = [

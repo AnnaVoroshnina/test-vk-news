@@ -1,5 +1,5 @@
 import {observable, action, makeObservable} from 'mobx';
-import {CategoriesType, INews} from "../types/types.ts";
+import {CategoriesType, INews} from "../../app/types/types.ts";
 
 const API_KEY = "Eam40-oJlUKMEeSYPWiyP8U7ZDDtSh15PH5JIyv3-8f9L8Z3"
 const BASE_URL = "https://api.currentsapi.services/v1"
@@ -26,18 +26,17 @@ class Store {
         })
     }
 
-    async fetchItems() {
+    async fetchItems(pageNumber: number = this.currentPage) {
         this.isLoading = true;
         try {
-            const response = await fetch(`${BASE_URL}/search?apiKey=${API_KEY}&page_number=${this.currentPage}&page_size=50`); // Добавляем параметр page
+            const response = await fetch(`${BASE_URL}/search?apiKey=${API_KEY}&page_number=${pageNumber}&page_size=50`); // Добавляем параметр pages
             const data = await response.json();
             // Фильтруем новые новости, чтобы избежать дубликатов
             const dataNews = data.news.filter((newItem: INews) =>
                 !this.news.some(existingItem => existingItem.id === newItem.id)
             );
             this.news = [...this.news, ...dataNews].filter(item => !this.deletedNewsIds.includes(item.id)); // Фильтруем новости
-            this.currentPage++; // Увеличиваем номер страницы
-
+            this.currentPage = pageNumber + 1; // Увеличиваем номер страницы
         } catch (error) {
             console.log(error);
             this.error = "Ошибка при загрузке новостей";
@@ -48,7 +47,7 @@ class Store {
 
     async fetchCategories() {
         try {
-            const response = await fetch(`${BASE_URL}/available/categories?apiKey=${API_KEY}`); // Добавляем параметр page
+            const response = await fetch(`${BASE_URL}/available/categories?apiKey=${API_KEY}`); // Добавляем параметр pages
             const data = await response.json();
             const dataNews = await data.categories;
             this.categories = [...this.categories, ...dataNews];

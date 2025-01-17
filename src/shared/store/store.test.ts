@@ -1,6 +1,6 @@
 import {act} from '@testing-library/react';
-import Store from './store';
-import {INews} from '../types/types';
+import Store from './store.tsx';
+import {INews} from '../../app/types/types.ts';
 
 // Создаем моковые данные для новостей
 const mockNews: INews[] = [

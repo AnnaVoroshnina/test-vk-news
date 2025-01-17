@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useState} from 'react';
-import Store from "../../store/store.tsx";
+import Store from "../../shared/store/store.tsx";
 import {observer} from "mobx-react-lite";
 import {
     Grid,
@@ -8,42 +8,53 @@ import {
 } from "@mui/material";
 import styles from './styles.module.css'
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {ListItemNews} from "../listItemNews/listItemNews.tsx";
-import {Loader} from "../loader/loader.tsx";
-import {Search} from "../search/search.tsx";
-import {useDebounce} from "../../helpers/hooks/useDebounce.ts";
-import {CategoriesType, INews} from "../../types/types.ts";
+import {ListItemNews} from "../../shared/ui/listItemNews/listItemNews.tsx";
+import {Loader} from "../../shared/ui/loader/loader.tsx";
+import {Search} from "../../shared/ui/search/search.tsx";
+import {useDebounce} from "../../shared/helpers/hooks/useDebounce.ts";
+import {CategoriesType, INews} from "../../app/types/types.ts";
 import {v4} from "uuid";
-import {Categories} from "../сategories/categories.tsx";
+import {Categories} from "../../shared/ui/сategories/categories.tsx";
 
 
 const ListNews = () => {
     const [selectedCategory, setSelectedCategory] = useState<CategoriesType | "all">('all');
-    const [filteredNews, setFilteredNews] = useState<INews[]>(Store.news);
+    const [displayedNews, setDisplayedNews] = useState<INews[]>([]);
     const [keywords, setKeywords] = useState<string>("")
     const debouncedKeywords: string = useDebounce(keywords, 1500)
+    const [page, setPage] = useState(1) // Номер страницы
+
+    const fetchInitialNews = async () => {
+        setPage(1);
+        setDisplayedNews([])
+        await Store.fetchItems(1);
+        setDisplayedNews(Store.news)
+    }
 
     useEffect(() => {
         Store.fetchCategories()
-        Store.fetchItems();
+        fetchInitialNews()
     }, []);
 
     // useCallback для мемоизации функции фильтрации новостей
     const filterNews = useCallback((category: CategoriesType | "all", keywords: string) => {
-        if (category !== "all") {
-            return Store.news.filter(item =>
-                item.category.includes(category) &&
-                (keywords ? item.title.toLowerCase().includes(keywords.toLowerCase()) : true)
-            );
-        } else {
-            return Store.news.filter(item =>
-                keywords ? item.title.toLowerCase().includes(keywords.toLowerCase()) : true
-            );
-        }
+        return Store.news.filter(item => {
+                const categoryCondition = category === "all" || item.category.includes(category)
+                const keywordsCondition = !keywords || item.title.toLowerCase().includes(keywords.toLowerCase())
+                return categoryCondition && keywordsCondition
+            }
+        );
     }, [Store.news]);
 
+    const handleLoadMore = async () => {
+        const nextPage = page + 1
+        setPage(nextPage)
+        await Store.fetchItems(nextPage)
+        setDisplayedNews(prevDisplayedNews => [...prevDisplayedNews, ...filterNews(selectedCategory, debouncedKeywords)])
+    };
+
     useEffect(() => {
-        setFilteredNews(filterNews(selectedCategory, debouncedKeywords));
+        setDisplayedNews(filterNews(selectedCategory, debouncedKeywords));
     }, [selectedCategory, debouncedKeywords, filterNews]);
 
     return (
@@ -63,25 +74,26 @@ const ListNews = () => {
                 {Store.isLoading && <Loader/>}
                 <List>
                     <InfiniteScroll
-                        dataLength={Store.news.length}
-                        next={() => Store.fetchItems()} // Передаем номер страницы
+                        dataLength={displayedNews.length}
+                        next={handleLoadMore}
                         hasMore={true}
                         loader={<Loader/>}
                     >
-                        {filteredNews.length === 0 && !Store.isLoading && selectedCategory !== "all" && (
+                        {displayedNews.length === 0 && !Store.isLoading && selectedCategory !== "all" && (
                             <Typography variant="h6" align="center" gutterBottom sx={{mt: 4, height: 40}}>
                                 Новости не найдены
                             </Typography>
                         )}
                         <Grid container spacing={2}> {/* Используем Grid container для создания сетки */}
-                            {filteredNews.map(item => (
+                            {displayedNews.map(
+                                ({image, title, published, author, id}) => (
                                 <ListItemNews
                                     key={v4()}
-                                    imageUrl={item.image}
-                                    title={item.title}
-                                    published={item.published}
-                                    author={item.author}
-                                    id={item.id}/>
+                                    imageUrl={image}
+                                    title={title}
+                                    published={published}
+                                    author={author}
+                                    id={id}/>
                             ))}
                         </Grid>
                     </InfiniteScroll>
